@@ -1,36 +1,177 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Conversation / Собеседник
+
+A minimalist digital companion with a typewriter aesthetic, built with Next.js and powered by OpenAI.
+
+## Features
+
+- 🎯 **Minimalist Design**: Clean, typewriter-style interface with dark theme
+- 🤖 **AI-Powered Conversations**: Uses OpenAI GPT-3.5-turbo for thoughtful responses
+- 📝 **Running Summary**: Maintains conversation context with structured summaries
+- ⚡ **Real-time Streaming**: Typewriter effect for AI responses
+- 🔒 **Privacy-First**: No server-side storage, all data stays in browser memory
+- 🌍 **Bilingual Support**: English and Russian interface
+- 🎨 **Responsive UI**: Works on desktop and mobile devices
+
+## Tech Stack
+
+- **Frontend**: Next.js (Pages Router), TypeScript, Tailwind CSS
+- **AI Integration**: Vercel AI SDK with OpenAI
+- **Components**: Custom React components with react-typical for typewriter effects
+- **Runtime**: Edge Runtime for fast API responses
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- OpenAI API key
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd cy-bot
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install --legacy-peer-deps
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+Create a `.env.local` file in the root directory:
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-## Learn More
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+## Environment Variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `OPENAI_API_KEY` | Your OpenAI API key | Yes |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+├── pages/
+│   ├── api/
+│   │   └── turn.ts          # API endpoint for AI conversations
+│   ├── _app.tsx             # App wrapper with global styles
+│   ├── _document.tsx        # HTML document structure
+│   └── index.tsx            # Main chat interface
+├── src/
+│   ├── components/
+│   │   ├── MessageList.tsx  # Chat message display
+│   │   └── Typewriter.tsx   # Typewriter effect component
+│   ├── lib/
+│   │   ├── prompt/
+│   │   │   └── system.ts    # System prompt configuration
+│   │   └── summary.ts       # Conversation summary logic
+│   ├── styles/
+│   │   └── globals.css      # Global styles and dark theme
+│   └── types/
+│       └── react-typical.d.ts # Type definitions
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API Endpoints
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### POST /api/turn
+
+Processes a conversation turn and returns an AI response.
+
+**Request Body:**
+```json
+{
+  "session_id": "string",
+  "user_input": "string", 
+  "running_summary": "RunningSummary | null",
+  "client_hints": "string[]"
+}
+```
+
+**Response:**
+```json
+{
+  "assistant_message": "string",
+  "running_summary_next": "RunningSummary",
+  "meta": {
+    "session_id": "string",
+    "timestamp": "string",
+    "processing_time_ms": "number"
+  }
+}
+```
+
+## Key Features
+
+### Running Summary System
+The app maintains a structured conversation summary with sections:
+- **Facts**: Key information shared by the user
+- **State**: Current emotional/mental state
+- **Goal**: What the user wants to achieve
+- **Insight**: Observations and patterns
+- **Open**: Unresolved questions or topics
+
+### Typewriter Effect
+AI responses are displayed with a realistic typewriter animation using `react-typical`.
+
+### Privacy & Data
+- No server-side storage or databases
+- All conversation history stays in browser memory
+- Session data is cleared on page reload
+- No persistent user tracking
+
+## Deployment
+
+### Vercel (Recommended)
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Add your `OPENAI_API_KEY` environment variable in Vercel dashboard
+4. Deploy automatically
+
+### Other Platforms
+The app can be deployed to any platform that supports Next.js Edge Runtime:
+- Netlify
+- Railway
+- AWS Amplify
+- Self-hosted
+
+## Development
+
+### Adding New Features
+- AI responses: Modify `src/lib/prompt/system.ts`
+- UI components: Add to `src/components/`
+- Styling: Update `src/styles/globals.css` or component styles
+
+### Testing
+```bash
+# Run linting
+npm run lint
+
+# Build for production
+npm run build
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details.
+
+## Support
+
+For issues or questions, please open a GitHub issue or contact the maintainers.
