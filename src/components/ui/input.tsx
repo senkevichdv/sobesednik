@@ -1,17 +1,8 @@
 import React from 'react';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  // Custom props can be added here
-}
-
-export const Input: React.FC<InputProps> = ({
-  className = '',
+export const Input: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = ({
+  className = "",
   ...props
 }) => {
-  return (
-    <input
-      className={`input ${className}`}
-      {...props}
-    />
-  );
+  return <input className={`input ${className}`} {...props} />;
 };
