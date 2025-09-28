@@ -155,6 +155,8 @@ export default function Home() {
 
   const selectLanguage = (lang: 'en' | 'ru') => {
     setLanguage(lang);
+    
+    // Create only intro message
     const introMessage: Message = {
       id: `intro_${Date.now()}`,
       type: 'assistant',
@@ -163,10 +165,11 @@ export default function Home() {
       choices: getIntroChoices(lang),
       askFreeInput: false,
     };
+    
     setMessages([introMessage]);
-    setShowFreeInput(false);
     setCurrentChoices(getIntroChoices(lang));
   };
+
 
   return (
     <div className="app">
@@ -174,40 +177,105 @@ export default function Home() {
       <header className="header">
         <div className="header-content">
           <h1 className="title">
-            {language === "ru" ? "Собеседник" : "Conversation"}
+            Sobesednik
           </h1>
 
-          {/* Language Selection */}
-          {language === null && (
-            <div className="language-buttons">
-              <Button
-                onClick={() => selectLanguage("en")}
-                variant="outline"
-                size="sm"
-              >
-                English
-              </Button>
-              <Button
-                onClick={() => selectLanguage("ru")}
-                variant="outline"
-                size="sm"
-              >
-                Русский
-              </Button>
-            </div>
-          )}
         </div>
       </header>
 
       {/* Messages */}
       <main className="main">
         <div className="main-content">
-          <MessageList 
-            messages={messages} 
-            isLoading={isLoading}
-            onScrollToBottom={scrollToBottom}
-          />
-          <div ref={messagesEndRef} />
+          {language === null ? (
+            <div className="landing-screen">
+              <div className="landing-content">
+                <div className="landing-icon">⌨️</div>
+                <div className="landing-buttons">
+                  <Button
+                    onClick={() => selectLanguage("en")}
+                    variant="outline"
+                    size="default"
+                    className="landing-button"
+                  >
+                    English
+                  </Button>
+                  <Button
+                    onClick={() => selectLanguage("ru")}
+                    variant="outline"
+                    size="default"
+                    className="landing-button"
+                  >
+                    Русский
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="landing-screen">
+              <div className="landing-content">
+                <div className="landing-icon">⌨️</div>
+                
+                {/* Language buttons - keep them after selection */}
+                <div className="landing-buttons">
+                  <Button
+                    onClick={() => selectLanguage("en")}
+                    variant="outline"
+                    size="default"
+                    className={`landing-button ${language === 'en' ? 'selected' : ''}`}
+                    disabled={language !== null}
+                  >
+                    English
+                  </Button>
+                  <Button
+                    onClick={() => selectLanguage("ru")}
+                    variant="outline"
+                    size="default"
+                    className={`landing-button ${language === 'ru' ? 'selected' : ''}`}
+                    disabled={language !== null}
+                  >
+                    Русский
+                  </Button>
+                </div>
+
+                {/* Description - separate element with original styles */}
+                <div className="description-section">
+                  <h2 className="landing-title">
+                    {language === 'ru' 
+                      ? 'Пространство для размышлений' 
+                      : 'A space for reflection'
+                    }
+                  </h2>
+                  <p className="landing-description">
+                    {language === 'ru'
+                      ? 'Здесь вы исследуете короткие истории, отражающие внутренние пейзажи. Ничего не сохраняется.'
+                      : 'Here you\'ll explore short stories that mirror inner landscapes. Nothing is saved.'
+                    }
+                  </p>
+                  <div className="landing-features">
+                    <div className="feature">
+                      {language === 'ru' ? '• Короткие психологические путешествия' : '• Short psychological journeys'}
+                    </div>
+                    <div className="feature">
+                      {language === 'ru' ? '• Атмосферные сцены' : '• Atmospheric scenes'}
+                    </div>
+                    <div className="feature">
+                      {language === 'ru' ? '• Ничего не сохраняется' : '• Nothing is saved'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Messages list */}
+                <div className="messages-section">
+                  <MessageList 
+                    messages={messages} 
+                    isLoading={isLoading}
+                    onScrollToBottom={scrollToBottom}
+                  />
+                  <div ref={messagesEndRef} />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </main>
 
