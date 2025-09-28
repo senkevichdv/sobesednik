@@ -14,6 +14,20 @@ export default function Document() {
       <body style={{ backgroundColor: '#1B1D1E', color: '#E5E5E5' }}>
         <Main />
         <NextScript />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              function setViewportHeight() {
+                const vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', vh + 'px');
+              }
+              
+              setViewportHeight();
+              window.addEventListener('resize', setViewportHeight);
+              window.addEventListener('orientationchange', setViewportHeight);
+            `,
+          }}
+        />
       </body>
     </Html>
   );
