@@ -3,6 +3,7 @@ import { MessageList, Message } from '../src/components/MessageList';
 import { getIntroChoices, getIntroMessage } from '../src/lib/introMessages';
 import { Input } from '../src/components/ui/input';
 import { Button } from '../src/components/ui/button';
+import { downloadConversation, copyConversation } from '../src/lib/exportConversation';
 
 interface Choice {
   id: string;
@@ -30,6 +31,7 @@ export default function Home() {
   const [language, setLanguage] = useState<'en' | 'ru' | null>(null);
   const [showFreeInput, setShowFreeInput] = useState(false);
   const [currentChoices, setCurrentChoices] = useState<Array<{ id: string; label: string }> | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -170,6 +172,22 @@ export default function Home() {
     setCurrentChoices(getIntroChoices(lang));
   };
 
+  const handleCopyConversation = async () => {
+    if (!language || messages.length === 0) return;
+    try {
+      await copyConversation(messages, language);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy conversation:', error);
+    }
+  };
+
+  const handleDownloadConversation = () => {
+    if (!language || messages.length === 0) return;
+    downloadConversation(messages, language);
+  };
+
 
   return (
     <div className="app">
@@ -177,6 +195,28 @@ export default function Home() {
       <header className="header">
         <div className="header-content">
           <h1 className="title">Sobesednik</h1>
+          {messages.length > 0 && language && (
+            <div className="header-actions">
+              <Button
+                onClick={handleCopyConversation}
+                variant="outline"
+                size="sm"
+                className="export-button"
+              >
+                {copySuccess 
+                  ? (language === 'ru' ? '✓ Скопировано' : '✓ Copied')
+                  : (language === 'ru' ? 'Скопировать' : 'Copy')}
+              </Button>
+              <Button
+                onClick={handleDownloadConversation}
+                variant="outline"
+                size="sm"
+                className="export-button"
+              >
+                {language === 'ru' ? 'Скачать' : 'Download'}
+              </Button>
+            </div>
+          )}
         </div>
       </header>
 
