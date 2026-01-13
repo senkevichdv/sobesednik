@@ -75,12 +75,12 @@ async function generateNextTurn(
     }
 
     const { text } = await generateText({
-      model: openai("gpt-5-nano"),
+      model: openai("gpt-4o-mini"),
       system: contextPrompt,
       prompt: `${specificPrompt}\n\nRemember: Respond in ${
         clientHints.lang === "ru" ? "Russian" : "English"
       } language.\n\nIMPORTANT: You MUST end your response with 2-3 numbered choices in this exact format:\n1. First choice\n2. Second choice\n3. Third choice`,
-      topP: 0.7,
+      temperature: 0.7,
     });
 
     // Validate response
