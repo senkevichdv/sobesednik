@@ -9,8 +9,8 @@ export interface IntroChoices {
 }
 
 export const introMessages: IntroMessage = {
-  en: "Welcome to a space for reflection. Here you'll explore short stories that mirror inner landscapes. Nothing is saved. Press Start to begin your journey.",
-  ru: "Добро пожаловать в пространство для размышлений. Здесь вы исследуете короткие истории, отражающие внутренние пейзажи. Ничего не сохраняется. Нажмите Старт, чтобы начать путешествие."
+  en: "Welcome! When you're ready, press Start to begin your journey.",
+  ru: "Добро пожаловать! Когда будете готовы, нажмите Старт, чтобы начать путешествие.",
 };
 
 export const introChoices: IntroChoices = {

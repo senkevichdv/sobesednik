@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageList, Message } from '../src/components/MessageList';
-import { getIntroMessage, getIntroChoices } from '../src/lib/introMessages';
+import { getIntroChoices, getIntroMessage } from '../src/lib/introMessages';
 import { Input } from '../src/components/ui/input';
 import { Button } from '../src/components/ui/button';
 
@@ -176,10 +176,7 @@ export default function Home() {
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <h1 className="title">
-            Sobesednik
-          </h1>
-
+          <h1 className="title">Sobesednik</h1>
         </div>
       </header>
 
@@ -214,14 +211,16 @@ export default function Home() {
             <div className="landing-screen">
               <div className="landing-content">
                 <div className="landing-icon">⌨️</div>
-                
+
                 {/* Language buttons - keep them after selection */}
                 <div className="landing-buttons">
                   <Button
                     onClick={() => selectLanguage("en")}
                     variant="outline"
                     size="default"
-                    className={`landing-button ${language === 'en' ? 'selected' : ''}`}
+                    className={`landing-button ${
+                      language === "en" ? "selected" : ""
+                    }`}
                     disabled={language !== null}
                   >
                     English
@@ -230,7 +229,9 @@ export default function Home() {
                     onClick={() => selectLanguage("ru")}
                     variant="outline"
                     size="default"
-                    className={`landing-button ${language === 'ru' ? 'selected' : ''}`}
+                    className={`landing-button ${
+                      language === "ru" ? "selected" : ""
+                    }`}
                     disabled={language !== null}
                   >
                     Русский
@@ -240,34 +241,38 @@ export default function Home() {
                 {/* Description - separate element with original styles */}
                 <div className="description-section">
                   <h2 className="landing-title">
-                    {language === 'ru' 
-                      ? 'Пространство для размышлений' 
-                      : 'A space for reflection'
-                    }
+                    {language === "ru"
+                      ? "Пространство для размышлений"
+                      : "A space for reflection"}
                   </h2>
                   <p className="landing-description">
-                    {language === 'ru'
-                      ? 'Здесь вы исследуете короткие истории, отражающие внутренние пейзажи. Ничего не сохраняется.'
-                      : 'Here you\'ll explore short stories that mirror inner landscapes. Nothing is saved.'
-                    }
+                    {language === "ru"
+                      ? "Здесь вы исследуете короткие истории, отражающие внутренние пейзажи. Ничего не сохраняется."
+                      : "Here you'll explore short stories that mirror inner landscapes. Nothing is saved."}
                   </p>
                   <div className="landing-features">
                     <div className="feature">
-                      {language === 'ru' ? '• Короткие психологические путешествия' : '• Short psychological journeys'}
+                      {language === "ru"
+                        ? "• Короткие психологические путешествия"
+                        : "• Short psychological journeys"}
                     </div>
                     <div className="feature">
-                      {language === 'ru' ? '• Атмосферные сцены' : '• Atmospheric scenes'}
+                      {language === "ru"
+                        ? "• Атмосферные сцены"
+                        : "• Atmospheric scenes"}
                     </div>
                     <div className="feature">
-                      {language === 'ru' ? '• Ничего не сохраняется' : '• Nothing is saved'}
+                      {language === "ru"
+                        ? "• Ничего не сохраняется"
+                        : "• Nothing is saved"}
                     </div>
                   </div>
                 </div>
 
                 {/* Messages list */}
                 <div className="messages-section">
-                  <MessageList 
-                    messages={messages} 
+                  <MessageList
+                    messages={messages}
                     isLoading={isLoading}
                     onScrollToBottom={scrollToBottom}
                   />

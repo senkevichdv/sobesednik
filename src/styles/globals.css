@@ -154,8 +154,17 @@ html, body {
 
 .choice-button {
   width: 100%;
-  justify-content: flex-start;
-  text-align: left;
+  justify-content: center !important;
+  text-align: center;
+  white-space: normal !important;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
+  padding: 0.875rem 1rem;
+  min-height: 2.75rem;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 /* Input area */

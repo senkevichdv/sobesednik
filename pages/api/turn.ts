@@ -75,10 +75,12 @@ async function generateNextTurn(
     }
 
     const { text } = await generateText({
-      model: openai("gpt-3.5-turbo"),
+      model: openai("gpt-5-nano"),
       system: contextPrompt,
-      prompt: `${specificPrompt}\n\nRemember: Respond in ${clientHints.lang === 'ru' ? 'Russian' : 'English'} language.`,
-      temperature: 0.7,
+      prompt: `${specificPrompt}\n\nRemember: Respond in ${
+        clientHints.lang === "ru" ? "Russian" : "English"
+      } language.\n\nIMPORTANT: You MUST end your response with 2-3 numbered choices in this exact format:\n1. First choice\n2. Second choice\n3. Third choice`,
+      topP: 0.7,
     });
 
     // Validate response
@@ -88,53 +90,58 @@ async function generateNextTurn(
     }
 
     // Parse response for choices and free input
-    // Look for choice patterns in the entire text
-    const choicePatterns = [
-      /(\d+\.\s+[^\n]+)/g,  // "1. Choice text"
-      /([-*•]\s+[^\n]+)/g,  // "- Choice text"
-      /(Option\s+\d+:\s+[^\n]+)/g  // "Option 1: Choice text"
-    ];
+    // Look for numbered lists at the END of the response
+    // The AI should format as: [text]\n\n1. Choice\n2. Choice\n3. Choice
     
-    const allChoices: string[] = [];
-    for (const pattern of choicePatterns) {
-      const matches = text.match(pattern);
-      if (matches) {
-        allChoices.push(...matches);
-      }
-    }
-    
-    // Remove duplicates and clean up
-    const uniqueChoices = [...new Set(allChoices)].map(choice => 
-      choice
-        .replace(/^\s*[-*•]\s+/, '') // Remove bullet points
-        .replace(/^\s*\d+\.\s+/, '') // Remove numbered lists
-        .replace(/^\s*Option\s+\d+:\s*/, '') // Remove "Option X:" prefix
-        .trim()
-    );
-    
-    // Extract the main message (everything before choices)
-    let message = text;
-    if (uniqueChoices.length > 0) {
-      // Find where choices start and extract message before that
-      const firstChoicePattern = choicePatterns.find(pattern => text.match(pattern));
-      if (firstChoicePattern) {
-        const firstMatch = text.match(firstChoicePattern);
-        if (firstMatch) {
-          const choiceStart = text.indexOf(firstMatch[0]);
-          message = text.substring(0, choiceStart).trim();
-        }
-      }
-    }
+    // Find all numbered items in the entire text
+    const numberedChoicePattern = /^(\d+)\.\s+(.+)$/gm;
+    const allMatches = [...text.matchAll(numberedChoicePattern)];
     
     let choices: Choice[] | null = null;
     let askFreeInput = false;
+    let message = text;
     
-    if (uniqueChoices.length > 0) {
-      choices = uniqueChoices.map((choice, index) => ({
-        id: String.fromCharCode(97 + index), // a, b, c...
-        label: choice
-      }));
+    // Only treat as choices if we have 2+ numbered items at the end
+    if (allMatches.length >= 2) {
+      // Check if the last few matches are sequential starting from 1
+      const lastMatches = allMatches.slice(-Math.min(allMatches.length, 5)); // Check last 5 matches
+      
+      // Find a valid sequence starting from 1
+      let validSequence: RegExpMatchArray[] = [];
+      for (let i = 0; i < lastMatches.length; i++) {
+        const match = lastMatches[i];
+        if (parseInt(match[1]) === 1) {
+          // Found a "1.", check if it continues sequentially
+          const sequence = [match];
+          for (let j = i + 1; j < lastMatches.length; j++) {
+            if (parseInt(lastMatches[j][1]) === sequence.length + 1) {
+              sequence.push(lastMatches[j]);
+            } else {
+              break;
+            }
+          }
+          if (sequence.length >= 2) {
+            validSequence = sequence;
+            break;
+          }
+        }
+      }
+      
+      if (validSequence.length >= 2) {
+        choices = validSequence.map((match, index) => ({
+          id: String.fromCharCode(97 + index), // a, b, c...
+          label: match[2].trim()
+        }));
+        
+        // Extract message (everything before the first choice)
+        const choicesStartIndex = text.indexOf(validSequence[0][0]);
+        message = text.substring(0, choicesStartIndex).trim();
+      } else {
+        // Not a valid sequence, treat as free input
+        askFreeInput = true;
+      }
     } else {
+      // No valid choice pattern found
       askFreeInput = true;
     }
 
@@ -143,9 +150,7 @@ async function generateNextTurn(
       choicesCount: choices?.length || 0, 
       askFreeInput,
       rawText: text.substring(0, 100) + '...',
-      allChoices: allChoices,
-      uniqueChoices: uniqueChoices,
-      parsedChoices: choices
+      choices: choices?.map(c => c.label)
     });
 
     return { message, choices, askFreeInput };
