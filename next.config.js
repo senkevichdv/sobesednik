@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    runtime: 'edge',
-  },
+  // Edge runtime removed for Telegram Mini App compatibility
 }
 
 module.exports = nextConfig

@@ -5,6 +5,14 @@ import { Input } from '../src/components/ui/input';
 import { Button } from '../src/components/ui/button';
 import { downloadConversation, copyConversation } from '../src/lib/exportConversation';
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: any;
+    };
+  }
+}
+
 interface Choice {
   id: string;
   label: string;
@@ -32,7 +40,46 @@ export default function Home() {
   const [showFreeInput, setShowFreeInput] = useState(false);
   const [currentChoices, setCurrentChoices] = useState<Array<{ id: string; label: string }> | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isTelegram, setIsTelegram] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Telegram WebApp features
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      setIsTelegram(true);
+
+      // Log Telegram user info
+      if (tg.initDataUnsafe?.user) {
+        console.log('Telegram user:', tg.initDataUnsafe.user);
+      }
+    }
+  }, []);
+
+  // Handle Telegram MainButton for sending messages
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      
+      if (showFreeInput && input.trim() && !isLoading) {
+        tg.MainButton.setText(language === 'ru' ? 'Отправить' : 'Send');
+        tg.MainButton.show();
+        tg.MainButton.enable();
+        
+        const handleMainButtonClick = () => {
+          handleSubmit(input);
+        };
+        
+        tg.MainButton.onClick(handleMainButtonClick);
+        
+        return () => {
+          tg.MainButton.offClick(handleMainButtonClick);
+        };
+      } else {
+        tg.MainButton.hide();
+      }
+    }
+  }, [showFreeInput, input, isLoading, language]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -148,6 +195,11 @@ export default function Home() {
   };
 
   const handleChoiceSelect = (choiceId: string) => {
+    // Haptic feedback for Telegram
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    
     // Find the choice text by ID
     const choice = currentChoices?.find(c => c.id === choiceId);
     if (choice) {
@@ -156,6 +208,11 @@ export default function Home() {
   };
 
   const selectLanguage = (lang: 'en' | 'ru') => {
+    // Haptic feedback for Telegram
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+    }
+    
     setLanguage(lang);
     
     // Create only intro message

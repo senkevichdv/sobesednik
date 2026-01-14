@@ -3,9 +3,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 import { buildSystemPrompt } from '../../src/lib/prompt/system';
 
-export const config = {
-  runtime: 'edge',
-};
+// Removed edge runtime for Telegram Mini App compatibility
 
 interface ClientHint {
   lang?: 'en' | 'ru';

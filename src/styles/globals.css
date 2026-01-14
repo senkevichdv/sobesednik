@@ -1,6 +1,13 @@
 /* iOS Safari viewport fix */
 :root {
   --vh: 1vh;
+  /* Telegram theme variables with fallbacks */
+  --tg-theme-bg-color: #1B1D1E;
+  --tg-theme-text-color: #E5E5E5;
+  --tg-theme-hint-color: #8B8B8B;
+  --tg-theme-link-color: #6AB4F9;
+  --tg-theme-button-color: #6AB4F9;
+  --tg-theme-button-text-color: #FFFFFF;
 }
 
 /* Reset and base styles */
@@ -15,8 +22,8 @@ html, body {
   font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'SF Mono', Monaco, 'Cascadia Mono', 'Roboto Mono', Consolas, 'Courier New', monospace;
   font-size: 14px;
   line-height: 1.5;
-  background-color: #1B1D1E;
-  color: #E5E5E5;
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
   overflow-x: hidden;
   /* iOS Safari fixes */
   -webkit-overflow-scrolling: touch;
