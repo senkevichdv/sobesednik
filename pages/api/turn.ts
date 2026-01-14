@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextApiRequest, NextApiResponse } from 'next';
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 import { buildSystemPrompt } from '../../src/lib/prompt/system';
@@ -172,15 +172,15 @@ async function generateNextTurn(
   }
 }
 
-export default async function handler(req: NextRequest) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const startTime = Date.now();
   
   if (req.method !== 'POST') {
-    return new Response('Method not allowed', { status: 405 });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const body: TurnRequest = await req.json();
+    const body: TurnRequest = req.body;
     const { session_id, user_input, running_summary, client_hints } = body;
 
     console.log('API Request:', {
@@ -190,7 +190,7 @@ export default async function handler(req: NextRequest) {
     });
 
     if (!user_input || !session_id) {
-      return new Response('Missing required fields', { status: 400 });
+      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     // Build system prompt
@@ -221,27 +221,18 @@ export default async function handler(req: NextRequest) {
       },
     };
 
-    // Create a streaming response
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-      start(controller) {
-        // Send the response as JSON
-        const jsonResponse = JSON.stringify(response);
-        controller.enqueue(encoder.encode(`data: ${jsonResponse}\n\n`));
-        controller.close();
-      },
-    });
+    // Set headers for streaming
+    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
 
-    return new Response(stream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      },
-    });
+    // Send the response in SSE format
+    const jsonResponse = JSON.stringify(response);
+    res.write(`data: ${jsonResponse}\n\n`);
+    res.end();
 
   } catch (error) {
     console.error('Error in turn handler:', error);
-    return new Response('Internal server error', { status: 500 });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
