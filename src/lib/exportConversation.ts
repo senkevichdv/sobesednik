@@ -1,5 +1,13 @@
 import { Message } from '../components/MessageList';
 
+declare global {
+  interface Window {
+    Telegram?: {
+      WebApp: any;
+    };
+  }
+}
+
 export function exportConversation(messages: Message[], language: 'en' | 'ru'): string {
   const title = language === 'ru' ? 'Разговор с Sobesednik' : 'Conversation with Sobesednik';
   const timestamp = new Date().toLocaleString(language === 'ru' ? 'ru-RU' : 'en-US');
@@ -30,6 +38,12 @@ export function exportConversation(messages: Message[], language: 'en' | 'ru'): 
 }
 
 export function downloadConversation(messages: Message[], language: 'en' | 'ru') {
+  // In Telegram, use clipboard instead of download to avoid navigation issues
+  if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+    return copyConversation(messages, language);
+  }
+  
+  // Regular browser download
   const content = exportConversation(messages, language);
   const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
   const url = URL.createObjectURL(blob);

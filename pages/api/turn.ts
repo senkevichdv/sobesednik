@@ -59,17 +59,13 @@ async function generateNextTurn(
       contextPrompt += `\n\nIMPORTANT: Respond ONLY in ${clientHints.lang === 'ru' ? 'Russian' : 'English'}. The user is using ${clientHints.lang === 'ru' ? 'Russian' : 'English'} language.`;
       console.log(`Language set to: ${clientHints.lang === 'ru' ? 'Russian' : 'English'}`);
     }
-    
-    if (clientHints.tone === 'noir-minimal') {
-      contextPrompt += `\n\nKeep responses minimal, atmospheric, and noir-style.`;
-    }
 
     // Handle specific choice texts for intro choices
     let specificPrompt = userInput;
     if (userInput === 'Start' || userInput === 'Старт') {
       specificPrompt = clientHints.lang === 'ru' 
-        ? 'Пользователь нажал "Старт" - создай первую сцену микро-истории с психологической темой для самоанализа'
-        : 'User pressed "Start" - create the first scene of a micro-story with psychological theme for self-reflection';
+        ? 'Пользователь нажал "Старт" - создай первую яркую сцену для начала уникального интерактивного путешествия. Сцена может быть любой: открытие нового места, встреча с интересным персонажем, момент красоты или любопытства. Будь креативен и позитивен!'
+        : 'User pressed "Start" - create an engaging opening scene for a unique interactive journey. The scene can be anything: discovering a new place, meeting an interesting character, a moment of beauty or curiosity. Be creative and positive!';
     }
 
     const { text } = await generateText({
@@ -78,7 +74,7 @@ async function generateNextTurn(
       prompt: `${specificPrompt}\n\nRemember: Respond in ${
         clientHints.lang === "ru" ? "Russian" : "English"
       } language.\n\nIMPORTANT: You MUST end your response with 2-3 numbered choices in this exact format:\n1. First choice\n2. Second choice\n3. Third choice`,
-      temperature: 0.7,
+      temperature: 0.8,
     });
 
     // Validate response

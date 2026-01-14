@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { Typewriter } from './Typewriter';
 import { Loading } from './Loading';
 
@@ -18,14 +18,14 @@ interface MessageListProps {
   onScrollToBottom?: () => void;
 }
 
-export const MessageList: React.FC<MessageListProps> = ({
+export const MessageList = forwardRef<HTMLDivElement, MessageListProps>(({
   messages,
   isLoading = false,
   className = "",
   onScrollToBottom,
-}) => {
+}, ref) => {
   return (
-    <div className={`messages ${className}`}>
+    <div className={`messages ${className}`} ref={ref}>
       {messages.map((message) => (
         <div key={message.id} className={`message ${message.type}`}>
           <div className="message-content">
@@ -54,4 +54,6 @@ export const MessageList: React.FC<MessageListProps> = ({
       )}
     </div>
   );
-};
+});
+
+MessageList.displayName = 'MessageList';

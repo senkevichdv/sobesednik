@@ -567,3 +567,121 @@ html, body {
 .messages-section .messages {
   text-align: left;
 }
+
+/* Privacy Page */
+.privacy-page {
+  min-height: 100vh;
+  background-color: var(--tg-theme-bg-color);
+  color: var(--tg-theme-text-color);
+  padding: 2rem 1rem;
+}
+
+.privacy-container {
+  max-width: 48rem;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.privacy-container h1 {
+  font-size: 2.5rem;
+  font-weight: 300;
+  margin-bottom: 0.5rem;
+  color: var(--tg-theme-text-color);
+}
+
+.privacy-container h2 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+  color: var(--tg-theme-text-color);
+  border-bottom: 1px solid #374151;
+  padding-bottom: 0.5rem;
+}
+
+.privacy-container p {
+  margin-bottom: 1rem;
+  color: var(--tg-theme-text-color);
+  opacity: 0.9;
+}
+
+.privacy-container ul {
+  margin: 1rem 0 1rem 1.5rem;
+  list-style-type: disc;
+}
+
+.privacy-container li {
+  margin-bottom: 0.5rem;
+  color: var(--tg-theme-text-color);
+  opacity: 0.85;
+}
+
+.privacy-container section {
+  margin-bottom: 2rem;
+}
+
+.privacy-container a {
+  color: var(--tg-theme-link-color);
+  text-decoration: underline;
+  transition: opacity 0.2s;
+}
+
+.privacy-container a:hover {
+  opacity: 0.8;
+}
+
+.privacy-container strong {
+  font-weight: 600;
+  color: var(--tg-theme-text-color);
+}
+
+.back-link,
+.back-link-bottom {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 2rem;
+  border: 1px solid #374151;
+  border-radius: 0.5rem;
+  background-color: #111213;
+  color: var(--tg-theme-text-color);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.back-link:hover,
+.back-link-bottom:hover {
+  background-color: var(--tg-theme-button-color);
+  color: var(--tg-theme-button-text-color);
+  border-color: var(--tg-theme-button-color);
+}
+
+.last-updated {
+  font-size: 0.875rem;
+  opacity: 0.6;
+  margin-bottom: 2rem;
+}
+
+.privacy-footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #374151;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .privacy-page {
+    padding: 1rem;
+  }
+  
+  .privacy-container h1 {
+    font-size: 1.75rem;
+  }
+  
+  .privacy-container h2 {
+    font-size: 1.25rem;
+    margin-top: 2rem;
+  }
+}

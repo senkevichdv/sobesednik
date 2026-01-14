@@ -9,8 +9,8 @@ export interface IntroChoices {
 }
 
 export const introMessages: IntroMessage = {
-  en: "Welcome! When you're ready, press Start to begin your journey.",
-  ru: "Добро пожаловать! Когда будете готовы, нажмите Старт, чтобы начать путешествие.",
+  en: "Welcome! Each story is unique and shaped by your choices. Ready to explore?",
+  ru: "Добро пожаловать! Каждая история уникальна и зависит от ваших выборов. Готовы исследовать?",
 };
 
 export const introChoices: IntroChoices = {

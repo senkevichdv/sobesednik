@@ -153,7 +153,7 @@ export default function Privacy() {
           <p>
             If you have any questions about this Privacy Policy, please contact
             us at:{" "}
-            <a href="mailto:privacy@sobesednik.app">privacy@sobesednik.app</a>
+            <a href="mailto:privacy@sobesednik.space">privacy@sobesednik.space</a>
           </p>
         </section>
 

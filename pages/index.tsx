@@ -39,9 +39,12 @@ export default function Home() {
   const [language, setLanguage] = useState<'en' | 'ru' | null>(null);
   const [showFreeInput, setShowFreeInput] = useState(false);
   const [currentChoices, setCurrentChoices] = useState<Array<{ id: string; label: string }> | null>(null);
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
   const [isTelegram, setIsTelegram] = useState(false);
+  const [isUserScrolling, setIsUserScrolling] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize Telegram WebApp features
   useEffect(() => {
@@ -81,9 +84,49 @@ export default function Home() {
     }
   }, [showFreeInput, input, isLoading, language]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // Smooth scroll with user scroll detection
+  const scrollToBottom = (force = false) => {
+    if (!messagesEndRef.current || !messagesContainerRef.current) return;
+    
+    const container = messagesContainerRef.current;
+    const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+    
+    // Only auto-scroll if user is near bottom or forced
+    if (force || isNearBottom || !isUserScrolling) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'auto', block: 'end' });
+    }
   };
+
+  // Detect user scroll
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const handleScroll = () => {
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 150;
+      
+      // Clear existing timeout
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+
+      // Set user scrolling flag
+      setIsUserScrolling(!isNearBottom);
+
+      // Reset flag after user stops scrolling
+      scrollTimeoutRef.current = setTimeout(() => {
+        setIsUserScrolling(false);
+      }, 1000);
+    };
+
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -109,7 +152,7 @@ export default function Home() {
         session_id: sessionId,
         user_input: userInput.trim(),
         running_summary: runningSummary,
-        client_hints: language ? { lang: language, tone: 'noir-minimal' } : { tone: 'noir-minimal' },
+        client_hints: language ? { lang: language } : {},
       };
       
       console.log('Sending request:', {
@@ -229,20 +272,27 @@ export default function Home() {
     setCurrentChoices(getIntroChoices(lang));
   };
 
-  const handleCopyConversation = async () => {
+  const handleSaveConversation = async () => {
     if (!language || messages.length === 0) return;
-    try {
-      await copyConversation(messages, language);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy conversation:', error);
+    
+    // Haptic feedback for Telegram
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
     }
-  };
-
-  const handleDownloadConversation = () => {
-    if (!language || messages.length === 0) return;
-    downloadConversation(messages, language);
+    
+    try {
+      await downloadConversation(messages, language);
+      
+      // Show success feedback
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+      
+      if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+        window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+      }
+    } catch (error) {
+      console.error('Failed to save conversation:', error);
+    }
   };
 
 
@@ -255,22 +305,21 @@ export default function Home() {
           {messages.length > 0 && language && (
             <div className="header-actions">
               <Button
-                onClick={handleCopyConversation}
+                onClick={handleSaveConversation}
                 variant="outline"
                 size="sm"
                 className="export-button"
+                title={isTelegram 
+                  ? (language === 'ru' ? 'Скопировать текст в буфер обмена' : 'Copy text to clipboard')
+                  : (language === 'ru' ? 'Скачать файл' : 'Download file')}
               >
-                {copySuccess 
-                  ? (language === 'ru' ? '✓ Скопировано' : '✓ Copied')
-                  : (language === 'ru' ? 'Скопировать' : 'Copy')}
-              </Button>
-              <Button
-                onClick={handleDownloadConversation}
-                variant="outline"
-                size="sm"
-                className="export-button"
-              >
-                {language === 'ru' ? 'Скачать' : 'Download'}
+                {saveSuccess 
+                  ? (isTelegram
+                      ? (language === 'ru' ? '✓ Скопировано' : '✓ Copied')
+                      : (language === 'ru' ? '✓ Скачано' : '✓ Downloaded'))
+                  : (isTelegram
+                      ? (language === 'ru' ? 'Скопировать' : 'Copy')
+                      : (language === 'ru' ? 'Скачать' : 'Download'))}
               </Button>
             </div>
           )}
@@ -339,24 +388,24 @@ export default function Home() {
                 <div className="description-section">
                   <h2 className="landing-title">
                     {language === "ru"
-                      ? "Пространство для размышлений"
-                      : "A space for reflection"}
+                      ? "Интерактивные истории для размышления"
+                      : "Interactive stories for reflection"}
                   </h2>
                   <p className="landing-description">
                     {language === "ru"
-                      ? "Здесь вы исследуете короткие истории, отражающие внутренние пейзажи. Ничего не сохраняется."
-                      : "Here you'll explore short stories that mirror inner landscapes. Nothing is saved."}
+                      ? "Исследуйте уникальные истории, где каждый выбор открывает новые направления. Будьте творцом своего путешествия."
+                      : "Explore unique stories where each choice opens new directions. Be the creator of your journey."}
                   </p>
                   <div className="landing-features">
                     <div className="feature">
                       {language === "ru"
-                        ? "• Короткие психологические путешествия"
-                        : "• Short psychological journeys"}
+                        ? "• Разнообразные темы и сюжеты"
+                        : "• Diverse themes and scenarios"}
                     </div>
                     <div className="feature">
                       {language === "ru"
-                        ? "• Атмосферные сцены"
-                        : "• Atmospheric scenes"}
+                        ? "• Каждая история уникальна"
+                        : "• Every story is unique"}
                     </div>
                     <div className="feature">
                       {language === "ru"
@@ -369,6 +418,7 @@ export default function Home() {
                 {/* Messages list */}
                 <div className="messages-section">
                   <MessageList
+                    ref={messagesContainerRef}
                     messages={messages}
                     isLoading={isLoading}
                     onScrollToBottom={scrollToBottom}
