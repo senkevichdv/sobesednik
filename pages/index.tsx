@@ -3,7 +3,7 @@ import { MessageList, Message } from '../src/components/MessageList';
 import { getIntroChoices, getIntroMessage } from '../src/lib/introMessages';
 import { Input } from '../src/components/ui/input';
 import { Button } from '../src/components/ui/button';
-import { downloadConversation, copyConversation } from '../src/lib/exportConversation';
+import { downloadConversation } from '../src/lib/exportConversation';
 
 declare global {
   interface Window {

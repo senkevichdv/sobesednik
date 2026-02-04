@@ -1,4 +1,4 @@
-export interface SystemPromptConfig {
+interface SystemPromptConfig {
   style: "minimalist" | "typewriter";
   maxLength: number; // e.g. 100
 }
