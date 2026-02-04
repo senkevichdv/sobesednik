@@ -5,7 +5,7 @@ A minimalist digital companion with a typewriter aesthetic, built with Next.js a
 ## Features
 
 - 🎯 **Minimalist Design**: Clean, typewriter-style interface with dark theme
-- 🤖 **AI-Powered Conversations**: Uses OpenAI GPT-3.5-turbo for thoughtful responses
+- 🤖 **AI-Powered Conversations**: Uses OpenAI GPT-4o-mini for thoughtful responses
 - 📝 **Running Summary**: Maintains conversation context with structured summaries
 - ⚡ **Real-time Streaming**: Typewriter effect for AI responses
 - 🔒 **Privacy-First**: No server-side storage, all data stays in browser memory
@@ -14,10 +14,12 @@ A minimalist digital companion with a typewriter aesthetic, built with Next.js a
 
 ## Tech Stack
 
-- **Frontend**: Next.js (Pages Router), TypeScript, Tailwind CSS
-- **AI Integration**: Vercel AI SDK with OpenAI
-- **Components**: Custom React components with react-typical for typewriter effects
-- **Runtime**: Edge Runtime for fast API responses
+- **Frontend**: Next.js 16 (Pages Router), React 19, TypeScript
+- **Styling**: Custom CSS with monospace typography
+- **AI Integration**: Vercel AI SDK (`ai`, `@ai-sdk/openai`) with OpenAI GPT-4o-mini
+- **Components**: Custom React components with custom typewriter effect
+- **Telegram Integration**: Telegram Mini App support via `@twa-dev/sdk`
+- **Runtime**: Standard Next.js runtime (Edge Runtime removed for Telegram Mini App compatibility)
 
 ## Getting Started
 
@@ -30,14 +32,15 @@ A minimalist digital companion with a typewriter aesthetic, built with Next.js a
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd cy-bot
+git clone https://github.com/senkevichdv/sobesednik.git
+cd sobesednik
 ```
 
 2. Install dependencies:
 ```bash
 npm install --legacy-peer-deps
 ```
+> **Note**: `--legacy-peer-deps` is required for compatibility between React 19 and Next.js 16 with other dependencies.
 
 3. Set up environment variables:
 Create a `.env.local` file in the root directory:
@@ -49,6 +52,7 @@ OPENAI_API_KEY=your_openai_api_key_here
 ```bash
 npm run dev
 ```
+This uses Next.js with Turbopack for faster development builds.
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
@@ -58,27 +62,37 @@ npm run dev
 |----------|-------------|----------|
 | `OPENAI_API_KEY` | Your OpenAI API key | Yes |
 
+## Telegram Mini App
+
+This app can be deployed as a [Telegram Mini App](https://core.telegram.org/bots/webapps) for seamless integration with Telegram bots. See [TELEGRAM_SETUP.md](./TELEGRAM_SETUP.md) for detailed setup instructions including:
+- Telegram WebApp SDK integration
+- Theme adaptation (matches Telegram dark/light mode)
+- Haptic feedback and MainButton integration
+- Deployment and BotFather configuration
+
 ## Project Structure
 
 ```
 ├── pages/
 │   ├── api/
 │   │   └── turn.ts          # API endpoint for AI conversations
-│   ├── _app.tsx             # App wrapper with global styles
+│   ├── _app.tsx             # App wrapper with Telegram integration
 │   ├── _document.tsx        # HTML document structure
-│   └── index.tsx            # Main chat interface
+│   ├── index.tsx            # Main chat interface
+│   └── privacy.tsx          # Privacy policy page
 ├── src/
 │   ├── components/
 │   │   ├── MessageList.tsx  # Chat message display
-│   │   └── Typewriter.tsx   # Typewriter effect component
+│   │   ├── Typewriter.tsx   # Typewriter effect component
+│   │   ├── Loading.tsx      # Loading indicator
+│   │   └── ui/              # Reusable UI components
 │   ├── lib/
 │   │   ├── prompt/
 │   │   │   └── system.ts    # System prompt configuration
-│   │   └── summary.ts       # Conversation summary logic
-│   ├── styles/
-│   │   └── globals.css      # Global styles and dark theme
-│   └── types/
-│       └── react-typical.d.ts # Type definitions
+│   │   ├── introMessages.ts # Initial conversation messages
+│   │   └── exportConversation.ts # Conversation export utilities
+│   └── styles/
+│       └── globals.css      # Global styles and dark theme
 ```
 
 ## API Endpoints
@@ -92,8 +106,11 @@ Processes a conversation turn and returns an AI response.
 {
   "session_id": "string",
   "user_input": "string", 
-  "running_summary": "RunningSummary | null",
-  "client_hints": "string[]"
+  "running_summary": "string",
+  "client_hints": {
+    "lang": "en | ru",
+    "tone": "noir-minimal"
+  }
 }
 ```
 
@@ -101,7 +118,9 @@ Processes a conversation turn and returns an AI response.
 ```json
 {
   "assistant_message": "string",
-  "running_summary_next": "RunningSummary",
+  "choices": [{"id": "string", "label": "string"}] | null,
+  "ask_free_input": "boolean",
+  "running_summary_next": "string",
   "meta": {
     "session_id": "string",
     "timestamp": "string",
@@ -112,16 +131,15 @@ Processes a conversation turn and returns an AI response.
 
 ## Key Features
 
-### Running Summary System
-The app maintains a structured conversation summary with sections:
-- **Facts**: Key information shared by the user
-- **State**: Current emotional/mental state
-- **Goal**: What the user wants to achieve
-- **Insight**: Observations and patterns
-- **Open**: Unresolved questions or topics
+### Conversation System
+The app uses an interactive conversation flow with:
+- **Dynamic choices**: AI-generated numbered options for user selection
+- **Free-form input**: Falls back to text input when appropriate
+- **Running summary**: Maintains conversation context across turns
+- **Bilingual support**: Automatically adapts to English or Russian based on client hints
 
 ### Typewriter Effect
-AI responses are displayed with a realistic typewriter animation using `react-typical`.
+AI responses are displayed with a custom typewriter animation component.
 
 ### Privacy & Data
 - No server-side storage or databases
@@ -138,11 +156,13 @@ AI responses are displayed with a realistic typewriter animation using `react-ty
 4. Deploy automatically
 
 ### Other Platforms
-The app can be deployed to any platform that supports Next.js Edge Runtime:
+The app can be deployed to any platform that supports Next.js:
 - Netlify
 - Railway
 - AWS Amplify
 - Self-hosted
+
+> **Note**: The app uses standard Next.js runtime (not Edge Runtime) for compatibility with Telegram Mini App integration.
 
 ## Development
 
@@ -156,8 +176,11 @@ The app can be deployed to any platform that supports Next.js Edge Runtime:
 # Run linting
 npm run lint
 
-# Build for production
+# Build for production (uses Turbopack)
 npm run build
+
+# Start production server
+npm run start
 ```
 
 ## Contributing
